@@ -89,4 +89,22 @@ class StringConverter(){
         return spannableString
     }
 
+    //EditText 전용 문자 삽입 + 색상 변경
+    fun insertAndColorString(et: EditText, str_insert: String, colorString: String){
+        val selection_s = et.selectionStart
+        val selection_e = et.selectionEnd
+        val str = et.text.toString()
+        val str_s = str.substring(0, selection_s)
+        val str_e = str.substring(selection_e)
+
+        et.setText("$str_s$str_insert$str_e")
+        et.setSelection(selection_s, selection_s + str_insert.length)
+
+        colorChangeForEditText(
+            et,
+            "%수신자명%",
+            colorString
+        )
+    }
+
 }
