@@ -1,14 +1,20 @@
 package com.shong.stringconverter
 
+import android.content.Context
 import android.graphics.Color
+import android.graphics.Typeface
+import android.os.Build
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
+import android.text.style.TypefaceSpan
 import android.util.Log
 import android.widget.EditText
+import androidx.core.content.res.ResourcesCompat.getFont
 
-class StringConverter(){
+class StringConverter(val context: Context) {
     val TAG = this::class.java.simpleName + "_sHong"
+
     //텍스트 색상 변환
     internal fun colorChange(_str: String, str_span: String, colorString: String): SpannableString {
         var str = _str
@@ -17,7 +23,7 @@ class StringConverter(){
         val endList = mutableListOf<Int>()
 
         var index_buf = 0
-        while (true){
+        while (true) {
             val start = str.indexOf(str_span)
             val end = start + str_span.length
 
@@ -30,8 +36,8 @@ class StringConverter(){
             index_buf += end
         }
 
-        try{
-            for (i in startList.indices){
+        try {
+            for (i in startList.indices) {
                 spannableString.setSpan(
                     ForegroundColorSpan(Color.parseColor(colorString)),
                     startList[i],
@@ -39,22 +45,95 @@ class StringConverter(){
                     Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
                 )
             }
-        }catch (e: Exception){
+        } catch (e: Exception) {
             Log.e(TAG, "SetSpan ERROR! $e")
         }
 
         return spannableString
     }
 
+    //텍스트 폰트 변환
+    internal fun fontChange(_str: String, str_span: String): SpannableString {
+        var str = _str
+        val spannableString = SpannableString(str)
+        val startList = mutableListOf<Int>()
+        val endList = mutableListOf<Int>()
+
+        var index_buf = 0
+        while (true) {
+            val start = str.indexOf(str_span)
+            val end = start + str_span.length
+
+            if (start < 0) break
+
+            str = str.substring(end)
+
+            startList.add(start + index_buf)
+            endList.add(end + index_buf)
+            index_buf += end
+        }
+
+        try {
+            val typeface: Typeface = Typeface.create(
+                getFont(context, R.font.pretendard_extrabold),
+                Typeface.BOLD
+            )
+            if (Build.VERSION.SDK_INT >= 28) {
+                for (i in startList.indices) {
+                    spannableString.setSpan(
+                        TypefaceSpan(typeface),
+                        startList[i],
+                        endList[i],
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
+                }
+            } else {
+                for (i in startList.indices) {
+                    spannableString.setSpan(
+                        CustomTypefaceSpan(typeface),
+                        startList[i],
+                        endList[i],
+                        Spannable.SPAN_EXCLUSIVE_INCLUSIVE
+                    )
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "SetSpan ERROR! $e")
+        }
+
+        return spannableString
+    }
+
+    //문자 변경
+    internal fun wordChange(_str: String, str_span: String, newWord: String): String {
+        var str = _str
+        while (true) {
+            val start = str.indexOf(str_span)
+            val end = start + str_span.length
+
+            if (start < 0) break
+
+            val str_s = str.substring(0, start)
+            val str_e = str.substring(end)
+            str = str_s + newWord + str_e
+        }
+
+        return str
+    }
+
     //EditText 전용 색상 변환
-    internal fun colorChangeForEditText(et: EditText, str_span: String, colorString: String): SpannableString {
+    internal fun colorChangeForEditText(
+        et: EditText,
+        str_span: String,
+        colorString: String
+    ): SpannableString {
         var str = et.text.toString()
         val spannableString = SpannableString(str)
         val startList = mutableListOf<Int>()
         val endList = mutableListOf<Int>()
 
         var index_buf = 0
-        while (true){
+        while (true) {
             val start = str.indexOf(str_span)
             val end = start + str_span.length
 
@@ -75,14 +154,16 @@ class StringConverter(){
             }
         }
 
-        try{
-            for (i in startList.indices){
-                et.text.setSpan(ForegroundColorSpan(Color.parseColor(colorString)),
+        try {
+            for (i in startList.indices) {
+                et.text.setSpan(
+                    ForegroundColorSpan(Color.parseColor(colorString)),
                     startList[i],
                     endList[i],
-                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
             }
-        }catch (e: Exception){
+        } catch (e: Exception) {
             Log.e(TAG, "EditText SetSpan ERROR! $e")
         }
 
@@ -90,7 +171,7 @@ class StringConverter(){
     }
 
     //EditText 전용 문자 삽입 + 색상 변경
-    fun insertAndColorString(et: EditText, str_insert: String, colorString: String){
+    fun insertAndColorString(et: EditText, str_insert: String, colorString: String) {
         val selection_s = et.selectionStart
         val selection_e = et.selectionEnd
         val str = et.text.toString()
