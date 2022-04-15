@@ -14,5 +14,13 @@ class MainActivity : AppCompatActivity() {
         textView.setText(stringConverter.colorChange(textView.text.toString(), "sHong", "#00FF00"))
         val textView2 = findViewById<TextView>(R.id.textView2)
         textView2.setText(stringConverter.fontChange(textView2.text.toString(), "sHong"))
+
+//        val sortedKeyList = rawMap.keys.sortedWith(Comparator(StringSortation::compare))
+//        val sortedContactList = mutableListOf<Contact>()
+//        for (key in sortedKeyList) {
+//            sortedContactList += rawMap[key]?.sortedWith(Comparator(StringSortation::compareContact))
+//                ?: continue
+//        }
+
     }
 }
